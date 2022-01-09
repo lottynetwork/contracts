@@ -90,23 +90,23 @@ contract Lotty is Ownable, ReentrancyGuard, Testable {
         uint32 finalNumber;
     }
 
+    // Bracket calculator is used for verifying claims for ticket prizes
+    mapping(uint32 => uint32) private _bracketCalculator;
     mapping(uint256 => Lottery) private _lotteries;
     mapping(uint256 => Ticket) private _tickets;
 
-    constructor(
-        address _token3rd,
-        address _timer,
-        uint8 _sizeOfLotteryNumbers,
-        uint16 _maxValidNumberRange
-    ) public Testable(_timer) {
+    constructor(address _token3rd, address _timer) public Testable(_timer) {
         require(_token3rd != address(0), "Contracts cannot be 0 address");
-        require(
-            _sizeOfLotteryNumbers != 0 && _maxValidNumberRange != 0,
-            "Lottery setup cannot be 0"
-        );
+
         token3rd_ = IERC20(_token3rd);
-        sizeOfLottery_ = _sizeOfLotteryNumbers;
-        maxValidRange_ = _maxValidNumberRange;
+
+        // Initializes a mapping
+        _bracketCalculator[0] = 1;
+        _bracketCalculator[1] = 11;
+        _bracketCalculator[2] = 111;
+        _bracketCalculator[3] = 1111;
+        _bracketCalculator[4] = 11111;
+        _bracketCalculator[5] = 111111;
     }
 
     modifier notContract() {
@@ -265,6 +265,8 @@ contract Lotty is Ownable, ReentrancyGuard, Testable {
         _lotteries[_lotteryId]
             .amountCollectedIn3rdToken += amount3rdTokenToTransfer;
 
+        //console.log("_ticketNumbers %s", _ticketNumbers);
+
         for (uint256 i = 0; i < _ticketNumbers.length; i++) {
             uint32 thisTicketNumber = _ticketNumbers[i];
 
@@ -292,6 +294,8 @@ contract Lotty is Ownable, ReentrancyGuard, Testable {
             _numberTicketsPerLotteryId[_lotteryId][
                 111111 + (thisTicketNumber % 1000000)
             ]++;
+
+            //console.log(JSON.stringify(_numberTicketsPerLotteryId));
 
             _userTicketIdsPerLotteryId[msg.sender][_lotteryId].push(
                 currentTicketId

@@ -8,4 +8,6 @@ interface IRandomNumberGenerator {
     function getRandomNumber(uint256 lotteryId)
         external
         returns (bytes32 requestId);
+
+    function viewLatestLotteryId() external view returns (uint256);
 }
